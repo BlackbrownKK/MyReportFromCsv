@@ -12,7 +12,7 @@ import java.util.Arrays;
 
 public class CsvReader {
     String[][] inputDataFromCsvFile;
-    String patch = "C:\\Users\\Юлия\\Desktop\\рабочий стол\\MyReportFromCsv\\src\\main\\resources\\report - workshop.csv";
+    String patch = "C:\\Users\\Юлия\\Downloads\\report - workshop.csv";
 
     public void initialiseArray(){
         FileReader reader = null;
@@ -62,7 +62,6 @@ public class CsvReader {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        System.out.println(Arrays.deepToString(inputDataFromCsvFile));
         return inputDataFromCsvFile;
     }
 }

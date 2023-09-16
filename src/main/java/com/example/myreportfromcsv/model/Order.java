@@ -2,7 +2,6 @@ package com.example.myreportfromcsv.model;
 
 
 
-import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
@@ -16,6 +15,9 @@ public class Order {
     private Date dataPayment;
     private int price;
     private int profit;
+    private int priority;
     private String orderType;
-    private int numberAkt;
+    private String numberAkt;
+    private boolean inTheProgress;
+    private boolean toTheAkt;
 }
