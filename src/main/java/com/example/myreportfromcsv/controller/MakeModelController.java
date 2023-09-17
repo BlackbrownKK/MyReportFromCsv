@@ -16,6 +16,7 @@ public class MakeModelController {
     int priority;
     private ArrayList<Order> ordersFromData = new ArrayList<>();
     String dateFormat = "dd.MM.yyyy";
+
     SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
 
     public ArrayList<Order> makeModels() {
