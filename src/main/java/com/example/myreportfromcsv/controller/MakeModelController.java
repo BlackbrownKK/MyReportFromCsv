@@ -5,6 +5,9 @@ import com.example.myreportfromcsv.model.Order;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -16,7 +19,6 @@ public class MakeModelController {
     int priority;
     private ArrayList<Order> ordersFromData = new ArrayList<>();
     String dateFormat = "dd.MM.yyyy";
-
     SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
 
     public ArrayList<Order> makeModels() {
@@ -32,7 +34,7 @@ public class MakeModelController {
             order.setDataReady((readDataFromTable(data, i, 4)));
             order.setPrice(readIntFromTable(data, i, 5));
             order.setDataPayment((readDataFromTable(data, i, 6)));
-            order.setPrice(readIntFromTable(data, i, 7));
+            order.setProfit(readIntFromTable(data, i, 7));
             order.setOrderType(data[i][8]);
             order.setNumberAkt(data[i][9]);
             order.setInTheProgress(inTheProgress);
@@ -60,7 +62,7 @@ public class MakeModelController {
         }
     }
 
-    private Date readDataFromTable(String[][] data, int row, int numColumn) {
+    private LocalDate readDataFromTable(String[][] data, int row, int numColumn) {
         String input = data[row][numColumn];
         if (input.length() == 1) {
             char[] input2 = input.toCharArray();
@@ -75,7 +77,11 @@ public class MakeModelController {
             inTheProgress = true;
             return null;
         } else try {
-            return sdf.parse(data[row][numColumn]);
+            //return sdf.parse(data[row][numColumn]);
+             Date result = sdf.parse(data[row][numColumn]);
+            Instant instant = result.toInstant(); // Convert Date to Instant
+            ZoneId zoneId = ZoneId.systemDefault(); // Specify the time zone you want to use
+            return instant.atZone(zoneId).toLocalDate(); // Convert Instant to LocalDate
 
         } catch (NumberFormatException e) {
 

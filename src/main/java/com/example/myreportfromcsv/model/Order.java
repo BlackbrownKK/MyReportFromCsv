@@ -4,15 +4,16 @@ package com.example.myreportfromcsv.model;
 
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDate;
+
 @Data
 public class Order {
     private String customer;
     private String location;
     private String address;
     private String code;
-    private Date dataReady;
-    private Date dataPayment;
+    private LocalDate dataReady;
+    private LocalDate dataPayment;
     private int price;
     private int profit;
     private int priority;
