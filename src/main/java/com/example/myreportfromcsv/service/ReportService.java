@@ -1,5 +1,6 @@
-package com.example.myreportfromcsv.controller;
+package com.example.myreportfromcsv.service;
 
+import com.example.myreportfromcsv.controller.ModelController;
 import com.example.myreportfromcsv.model.Order;
 import lombok.Getter;
 
@@ -8,11 +9,12 @@ import java.time.Month;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class GetReportController {
+public class ReportService {
     LocalDate localDateToday;
 
-    private final MakeModelController controller = new MakeModelController();
-    private final ArrayList<Order> input = controller.makeModels();
+    private final ModelController controller = new ModelController();
+    @Getter
+    private final ArrayList<Order> orders = controller.makeModels();
     @Getter
     private List<Order> dataReportInProgress;
     @Getter
@@ -48,7 +50,7 @@ public class GetReportController {
 
     private HashSet<Integer> setYearsSet() {
         HashSet<Integer> years = new HashSet<>();
-        for (Order order : input) {
+        for (Order order : orders) {
             if (!order.isInTheProgress())
                 years.add(order.getDataReady().getYear());
         }
@@ -56,7 +58,7 @@ public class GetReportController {
     }
 
     private List<Order> getReportInProgress() {
-        List<Order> result = input
+        List<Order> result = orders
                 .stream()
                 .filter(Order::isInTheProgress)
                 .collect(Collectors.toList());
@@ -66,7 +68,7 @@ public class GetReportController {
     }
 
     private List<Order> forPaymentReadyLastWeek() {
-        List<Order> result = input
+        List<Order> result = orders
                 .stream()
                 .filter(Order::isToTheAkt)
                 .filter(order -> checkWeekDate(order.getDataReady()))
@@ -82,7 +84,7 @@ public class GetReportController {
     }
 
     private List<Order> getReportToTheAct() {
-        List<Order> result = input
+        List<Order> result = orders
                 .stream()
                 .filter(Order::isToTheAkt)
                 .collect(Collectors.toList());
@@ -95,7 +97,7 @@ public class GetReportController {
         HashMap<Integer, List<Order>> reportAllYears = new HashMap<>();
         for (int year : yearsSet) {
             List<Order> sortByYearCollection =
-                    input.stream()
+                    orders.stream()
                             .filter(order -> !order.isInTheProgress())
                             .filter(order -> order.getDataReady().getYear() == year)
                             .collect(Collectors.toList());
@@ -107,7 +109,7 @@ public class GetReportController {
     private HashMap<Integer, Integer> intensiveReportPerOneWeek() {
         HashMap<Integer, Integer> reportAllYears = new HashMap<>();
         for (Month month : Month.values()) {
-            Long count = input.stream()
+            Long count = orders.stream()
                     .filter(order -> !order.isInTheProgress())
                     .filter(order -> order.getDataReady().getYear() == localDateToday.getYear())
                     .filter(order -> order.getDataReady().getMonth() == month)

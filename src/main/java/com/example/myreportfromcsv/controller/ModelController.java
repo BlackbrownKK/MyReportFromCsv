@@ -1,7 +1,8 @@
 package com.example.myreportfromcsv.controller;
 
-import com.example.myreportfromcsv.CsvReader;
+import com.example.myreportfromcsv.reader.CsvReader;
 import com.example.myreportfromcsv.model.Order;
+import org.springframework.stereotype.Controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -12,8 +13,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import static java.lang.Character.*;
-
-public class MakeModelController {
+@Controller
+public class ModelController {
     private boolean inTheProgress;
     private boolean toTheAkt;
     int priority;
@@ -26,24 +27,24 @@ public class MakeModelController {
         csvReader.initialiseArray();
         String[][] data = csvReader.perCsV();
         for (int i = 0; i < data.length; i++) {
-            Order order = new Order();
-            order.setCustomer(data[i][0]);
-            order.setLocation(data[i][1]);
-            order.setAddress(data[i][2]);
-            order.setCode(data[i][3]);
-            order.setDataReady((readDataFromTable(data, i, 4)));
-            order.setPrice(readIntFromTable(data, i, 5));
-            order.setDataPayment((readDataFromTable(data, i, 6)));
-            order.setProfit(readIntFromTable(data, i, 7));
-            order.setOrderType(data[i][8]);
-            order.setNumberAkt(data[i][9]);
-            order.setInTheProgress(inTheProgress);
-            order.setToTheAkt(toTheAkt);
-            order.setPriority(priority);
+            Order temp = Order.builder()
+                    .customer(data[i][0])
+                    .location(data[i][1])
+                    .address(data[i][2])
+                    .code(data[i][3])
+                    .dataReady((readDataFromTable(data, i, 4)))
+                    .price(readIntFromTable(data, i, 5))
+                    .dataPayment((readDataFromTable(data, i, 6)))
+                    .profit(readIntFromTable(data, i, 7))
+                    .orderType(data[i][8])
+                    .numberAkt(data[i][9])
+                    .inTheProgress(inTheProgress)
+                    .toTheAkt(toTheAkt)
+                    .priority(priority).build();
             priority = 0;
             toTheAkt = false;
             inTheProgress = false;
-            ordersFromData.add(order);
+            ordersFromData.add(temp);
         }
         return ordersFromData;
     }
@@ -78,7 +79,7 @@ public class MakeModelController {
             return null;
         } else try {
             //return sdf.parse(data[row][numColumn]);
-             Date result = sdf.parse(data[row][numColumn]);
+            Date result = sdf.parse(data[row][numColumn]);
             Instant instant = result.toInstant(); // Convert Date to Instant
             ZoneId zoneId = ZoneId.systemDefault(); // Specify the time zone you want to use
             return instant.atZone(zoneId).toLocalDate(); // Convert Instant to LocalDate

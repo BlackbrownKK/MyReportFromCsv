@@ -1,18 +1,16 @@
-package com.example.myreportfromcsv;
+package com.example.myreportfromcsv.reader;
+
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
+
 
 public class CsvReader {
     String[][] inputDataFromCsvFile;
-    String patch = "C:\\Users\\Юлия\\Downloads\\report - workshop.csv";
+    String patch = "C:\\Users\\Anwender\\Downloads\\report - workshop.csv";
 
     public void initialiseArray(){
         FileReader reader = null;

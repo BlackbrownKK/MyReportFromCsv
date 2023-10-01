@@ -1,8 +1,14 @@
 package com.example.myreportfromcsv.view;
 
-import com.example.myreportfromcsv.controller.GetReportController;
-import com.example.myreportfromcsv.controller.MakeOutputController;
+import com.example.myreportfromcsv.MyReportFromCsvApplication;
+import com.example.myreportfromcsv.controller.OrderController;
+import com.example.myreportfromcsv.repasitory.OrderRepository;
+import com.example.myreportfromcsv.service.OrderService;
+import com.example.myreportfromcsv.service.ReportService;
+import com.example.myreportfromcsv.controller.ReportController;
 import com.example.myreportfromcsv.model.Order;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,8 +31,8 @@ public class JTableView {
     private String intensiveReport;
     JLabel jlabText = new JLabel();
 
-    MakeOutputController outputReports = new MakeOutputController();
-    GetReportController outputData = new GetReportController();
+    ReportController outputReports = new ReportController();
+    ReportService outputData = new ReportService();
 
     public void initialTask() {
         outputReports.initialise();
@@ -52,7 +58,6 @@ public class JTableView {
         return temp;
     }
 
-    // todo: speed, menu,
     public JTableView() {
         initialTask();
 
@@ -61,7 +66,7 @@ public class JTableView {
         frm.setSize(500, 200);
 
         JTable table = new JTable(data, colHeads);
-
+        JButton jButtonAdd = new JButton("add all to DB");
         JMenuBar menuBar = new JMenuBar();
 
         Button getReportInProgress = new Button("Copy to clipboard");
@@ -82,11 +87,21 @@ public class JTableView {
 
         frm.setLayout(new FlowLayout());
         frm.add(table);
+        frm.add(jButtonAdd);
         frm.add(menuBar);
         frm.setJMenuBar(menuBar);
         frm.add(getReportInProgress);
         frm.add(daysOfReady);
         frm.setVisible(true);
+
+        jButtonAdd.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Graphic graphic = new Graphic();
+                graphic.initialTask();
+            }
+        });
+
 
         daysOfReady.addActionListener(new ActionListener() {
             @Override
@@ -94,9 +109,9 @@ public class JTableView {
                 try {
                     jlabText.setText(daysOfReady.getText());
                     int days = (Integer.parseInt(jlabText.getText()));
-                    GetReportController.daysBeforeTodayForPayment = days;
+                    ReportService.daysBeforeTodayForPayment = days;
                     initialTask();
-                }catch (NumberFormatException exception){
+                } catch (NumberFormatException exception) {
                     System.out.println("enter days after ready [int] ");
                 }
 
@@ -161,9 +176,5 @@ public class JTableView {
             }
         });
 
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new JTableView());
     }
 }

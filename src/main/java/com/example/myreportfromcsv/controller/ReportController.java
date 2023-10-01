@@ -1,12 +1,16 @@
 package com.example.myreportfromcsv.controller;
 
 import com.example.myreportfromcsv.model.Order;
+import com.example.myreportfromcsv.service.ReportService;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
 import java.util.*;
 
 
-public class MakeOutputController {
-    GetReportController controller;
+public class ReportController {
+    ReportService reportService;
     private StringBuilder stringBuilder;
     @Getter
     private String reportInProgress;
@@ -20,22 +24,27 @@ public class MakeOutputController {
     private String reportProfitMain;
     @Getter
     private String intensiveReport;
-
+    @Getter
+    private HashMap<Integer, Integer> profitDataAllTime;
     private final String textIsInTheProgress = "  в роботі: ";
     private final String textToTheAct = "  готово: ";
     private final String textForPayment = "  в Акт: ";
     private final String textPriority = "пріоритет <";
     private final String textIntensive = "інтенсивність";
+    @Getter
+    private static ArrayList<Order> orders;
 
     public void initialise() {
-        controller = new GetReportController();
-        controller.initialise();
-        reportInProgress = getReportInProgress(controller.getDataReportInProgress());
-        reportReportReadyLastWeek = getReportReadyLastWeek(controller.getDataFromPaymentReadyLastWeek());
-        reportToTheAct = getReportToTheAllAct(controller.getDataFromReportToTheAct());
-        reportMain =  getReportFromAllTime(controller.getTableByMonths());
-        reportProfitMain = getReportProfitAllTime(controller.getProfitByMonths());
-        intensiveReport = getIntensiveReportToResult(controller.getIntensiveReport());
+        reportService = new ReportService();
+        reportService.initialise();
+        orders = reportService.getOrders();
+        reportInProgress = getReportInProgress(reportService.getDataReportInProgress());
+        reportReportReadyLastWeek = getReportReadyLastWeek(reportService.getDataFromPaymentReadyLastWeek());
+        reportToTheAct = getReportToTheAllAct(reportService.getDataFromReportToTheAct());
+        reportMain = getReportFromAllTime(reportService.getTableByMonths());
+        reportProfitMain = getReportProfitAllTime(reportService.getProfitByMonths());
+        intensiveReport = getIntensiveReportToResult(reportService.getIntensiveReport());
+        profitDataAllTime = getDataProfitAllTime(reportService.getProfitByMonths(), 2023);
     }
 
     private String getIntensiveReportToResult(HashMap<Integer, Integer> input) {
@@ -48,8 +57,11 @@ public class MakeOutputController {
                     .append(input.get(month))
                     .append("\n");
         }
+        int sum = input.values().stream().mapToInt(Integer::intValue).sum();
+        stringBuilder.append("Year - " + sum);
         return stringBuilder.toString();
     }
+
 
     private String getReportInProgress(List<Order> input) {
         stringBuilder = new StringBuilder();
@@ -111,7 +123,7 @@ public class MakeOutputController {
         HashMap<Integer, HashMap<Integer, Integer>> inputSort = sortByKeyBigForYear(input);
         stringBuilder = new StringBuilder();
         inputSort.forEach((year, innerMap) -> {
-            int sumOfYear = controller.getSumOfYear(innerMap);
+            int sumOfYear = reportService.getSumOfYear(innerMap);
             stringBuilder.append(year).append("-").append(sumOfYear).append(" : ");
             innerMap.forEach((month, value) -> {
                 stringBuilder.append(month).append("-").append(value).append("; ");
@@ -125,7 +137,7 @@ public class MakeOutputController {
         HashMap<Integer, HashMap<Integer, Integer>> inputSort = sortByKeyBigForYear(input);
         stringBuilder = new StringBuilder();
         inputSort.forEach((year, innerMap) -> {
-            int sumOfYear = controller.getSumOfYear(innerMap);
+            int sumOfYear = reportService.getSumOfYear(innerMap);
             stringBuilder.append(year).append("-").append(sumOfYear).append(" : ");
             innerMap.forEach((month, value) -> {
                 stringBuilder.append(month).append("-").append(value).append("; ");
@@ -134,6 +146,20 @@ public class MakeOutputController {
         });
         return stringBuilder.toString();
     }
+
+    private HashMap<Integer, Integer> getDataProfitAllTime(HashMap<Integer, HashMap<Integer, Integer>> input, int CurrentYear) {
+        HashMap<Integer, HashMap<Integer, Integer>> inputSort = sortByKeyBigForYear(input);
+        HashMap<Integer, Integer> result = new HashMap<>();
+        inputSort.forEach((year, innerMap) -> {
+            if (year == CurrentYear) {
+                innerMap.forEach((month, value) -> {
+                    result.put(month, value);
+                });
+            }
+        });
+        return result;
+    }
+
 
     public static HashMap<Integer, HashMap<Integer, Integer>> sortByKeyBigForYear(HashMap<Integer, HashMap<Integer, Integer>> unsortedMap) {
         // Convert the HashMap to a TreeMap, which automatically sorts by keys

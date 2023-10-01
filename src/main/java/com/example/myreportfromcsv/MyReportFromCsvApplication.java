@@ -1,19 +1,22 @@
 package com.example.myreportfromcsv;
 
 
+import com.example.myreportfromcsv.view.JTableView;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import javax.swing.*;
-import java.util.Arrays;
 
-import static java.util.Arrays.*;
+
+//todo export to postgresSQL to make a reserve copy
+//todo check every data if it was changed and make changes in the DB
+//todo make output for preparing Acts: connect postgres
 
 @SpringBootApplication
 public class MyReportFromCsvApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MyReportFromCsvApplication.class, args);
+	 SpringApplication.run(MyReportFromCsvApplication.class, args);
 
 	}
 
