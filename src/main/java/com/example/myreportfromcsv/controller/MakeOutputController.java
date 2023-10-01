@@ -16,11 +16,16 @@ public class MakeOutputController {
     private String reportToTheAct;
     @Getter
     private String reportMain;
+    @Getter
+    private String reportProfitMain;
+    @Getter
+    private String intensiveReport;
 
     private final String textIsInTheProgress = "  в роботі: ";
     private final String textToTheAct = "  готово: ";
     private final String textForPayment = "  в Акт: ";
     private final String textPriority = "пріоритет <";
+    private final String textIntensive = "інтенсивність";
 
     public void initialise() {
         controller = new GetReportController();
@@ -29,6 +34,21 @@ public class MakeOutputController {
         reportReportReadyLastWeek = getReportReadyLastWeek(controller.getDataFromPaymentReadyLastWeek());
         reportToTheAct = getReportToTheAllAct(controller.getDataFromReportToTheAct());
         reportMain =  getReportFromAllTime(controller.getTableByMonths());
+        reportProfitMain = getReportProfitAllTime(controller.getProfitByMonths());
+        intensiveReport = getIntensiveReportToResult(controller.getIntensiveReport());
+    }
+
+    private String getIntensiveReportToResult(HashMap<Integer, Integer> input) {
+        stringBuilder = new StringBuilder();
+        stringBuilder.append(textIntensive).append("\n");
+        for (Integer month : input.keySet()) {
+            stringBuilder
+                    .append(month.intValue())
+                    .append(" - ")
+                    .append(input.get(month))
+                    .append("\n");
+        }
+        return stringBuilder.toString();
     }
 
     private String getReportInProgress(List<Order> input) {
@@ -88,6 +108,20 @@ public class MakeOutputController {
     }
 
     private String getReportFromAllTime(HashMap<Integer, HashMap<Integer, Integer>> input) {
+        HashMap<Integer, HashMap<Integer, Integer>> inputSort = sortByKeyBigForYear(input);
+        stringBuilder = new StringBuilder();
+        inputSort.forEach((year, innerMap) -> {
+            int sumOfYear = controller.getSumOfYear(innerMap);
+            stringBuilder.append(year).append("-").append(sumOfYear).append(" : ");
+            innerMap.forEach((month, value) -> {
+                stringBuilder.append(month).append("-").append(value).append("; ");
+            });
+            stringBuilder.append("\n");
+        });
+        return stringBuilder.toString();
+    }
+
+    private String getReportProfitAllTime(HashMap<Integer, HashMap<Integer, Integer>> input) {
         HashMap<Integer, HashMap<Integer, Integer>> inputSort = sortByKeyBigForYear(input);
         stringBuilder = new StringBuilder();
         inputSort.forEach((year, innerMap) -> {

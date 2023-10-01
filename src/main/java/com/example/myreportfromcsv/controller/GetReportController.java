@@ -6,11 +6,11 @@ import lombok.Getter;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
-import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 public class GetReportController {
     LocalDate localDateToday;
+
     private final MakeModelController controller = new MakeModelController();
     private final ArrayList<Order> input = controller.makeModels();
     @Getter
@@ -22,10 +22,17 @@ public class GetReportController {
     @Getter
     private HashMap<Integer, List<Order>> yearsDividedTable;
     @Getter
-    private HashMap<Integer, HashMap<Integer, Integer>> TableByMonths;
+    private HashMap<Integer, HashMap<Integer, Integer>> tableByMonths;
+    @Getter
+    private HashMap<Integer, HashMap<Integer, Integer>> profitByMonths;
+
+    @Getter
+    private HashMap<Integer, Integer> intensiveReport;
+
     private HashSet<Integer> yearsSet;
 
-    public String yearReport;
+    public static int daysBeforeTodayForPayment = 4;
+
 
     public void initialise() {
         localDateToday = LocalDate.now();
@@ -34,7 +41,9 @@ public class GetReportController {
         dataFromReportToTheAct = getReportToTheAct();
         dataFromPaymentReadyLastWeek = forPaymentReadyLastWeek();
         yearsDividedTable = divideTableByYear();
-        TableByMonths = analysisTableByMonths();
+        tableByMonths = analysisTableByMonths();
+        profitByMonths = analysisProfitByMonths();
+        intensiveReport = intensiveReportPerOneWeek();
     }
 
     private HashSet<Integer> setYearsSet() {
@@ -69,7 +78,7 @@ public class GetReportController {
 
     private boolean checkWeekDate(LocalDate dataReady) {
         int daysDifference = (int) (localDateToday.toEpochDay() - dataReady.toEpochDay());
-        return daysDifference > 4;
+        return daysDifference >= daysBeforeTodayForPayment;
     }
 
     private List<Order> getReportToTheAct() {
@@ -95,8 +104,22 @@ public class GetReportController {
         return reportAllYears;
     }
 
+    private HashMap<Integer, Integer> intensiveReportPerOneWeek() {
+        HashMap<Integer, Integer> reportAllYears = new HashMap<>();
+        for (Month month : Month.values()) {
+            Long count = input.stream()
+                    .filter(order -> !order.isInTheProgress())
+                    .filter(order -> order.getDataReady().getYear() == localDateToday.getYear())
+                    .filter(order -> order.getDataReady().getMonth() == month)
+                    .count();
+
+            reportAllYears.put(month.getValue(), Math.toIntExact(count));
+        }
+        return reportAllYears;
+    }
+
+
     private HashMap<Integer, HashMap<Integer, Integer>> analysisTableByMonths() {
-        BinaryOperator<Integer> getSum = Integer::sum;
 
         HashMap<Integer, HashMap<Integer, Integer>> result = new HashMap<>();
 
@@ -119,12 +142,32 @@ public class GetReportController {
         return result;
     }
 
+    private HashMap<Integer, HashMap<Integer, Integer>> analysisProfitByMonths() {
+        HashMap<Integer, HashMap<Integer, Integer>> result = new HashMap<>();
+        List<Integer> keys = yearsDividedTable.keySet().stream().toList();
+        for (Integer key : keys) {
+            HashMap<Integer, Integer> temp = new HashMap<>();
+            List<Order> orders = yearsDividedTable.get(key);
+            for (Month month : Month.values()) {
+                int sum = orders
+                        .stream()
+                        .filter(order -> order.getDataReady().getMonth() == month)
+                        .mapToInt(Order::getProfit)
+                        .sum();
+
+                temp.put(month.getValue(), sum);
+            }
+            result.put(key, temp);
+        }
+        return result;
+    }
+
 
     public int getSumOfYear(HashMap<Integer, Integer> input) {
-            return input
-                    .values()
-                    .stream()
-                    .mapToInt(Integer::intValue)
-                    .sum();
-        }
+        return input
+                .values()
+                .stream()
+                .mapToInt(Integer::intValue)
+                .sum();
+    }
 }

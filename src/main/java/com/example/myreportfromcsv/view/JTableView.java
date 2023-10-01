@@ -21,57 +21,107 @@ public class JTableView {
     private String reportToTheAkt;
     private String listGetPayment;
     private String yearReportText;
+    private String yearReportProfitText;
+    private String intensiveReport;
+    JLabel jlabText = new JLabel();
 
+    MakeOutputController outputReports = new MakeOutputController();
+    GetReportController outputData = new GetReportController();
 
     public void initialTask() {
-        MakeOutputController outputReports = new MakeOutputController();
-        GetReportController outputData= new GetReportController();
         outputReports.initialise();
         outputData.initialise();
-
         List<Order> inputDataInProgress = outputData.getDataReportInProgress();
         data = makeTableToReport(inputDataInProgress);
         reportInProgress = outputReports.getReportInProgress();
         listGetPayment = outputReports.getReportReportReadyLastWeek();
         reportToTheAkt = outputReports.getReportToTheAct();
         yearReportText = outputReports.getReportMain();
+        yearReportProfitText = outputReports.getReportProfitMain();
+        intensiveReport = outputReports.getIntensiveReport();
     }
 
     public String[][] makeTableToReport(List<Order> inputDataInProgress) {
         String[][] temp = new String[inputDataInProgress.size()][2];
         int index = 0;
-
         for (Order order : inputDataInProgress) {
             temp[index][0] = order.getCode();
             temp[index][1] = String.valueOf(order.getPriority());
             index++;
         }
-
         return temp;
     }
 
-
+    // todo: speed, menu,
     public JTableView() {
         initialTask();
+
         JFrame frm = new JFrame("отчёт");
         frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frm.setSize(500, 300);
+        frm.setSize(500, 200);
 
-        // Create the table.
         JTable table = new JTable(data, colHeads);
 
-        // Add the table to a scroll pane.
-        JScrollPane jsp = new JScrollPane(table);
+        JMenuBar menuBar = new JMenuBar();
 
         Button getReportInProgress = new Button("Copy to clipboard");
+        JMenuItem getReportToTheAkt = new JMenuItem("list ready");
+        JMenuItem forPayment = new JMenuItem("to payment");
+        JMenuItem yearReport = new JMenuItem("year report");
+        JMenuItem yearProfitReport = new JMenuItem("profit report");
+        JMenuItem intensive = new JMenuItem("intensive");
 
-        Button getReportToTheAkt = new Button("List with ready reports");
-        Button forPayment = new Button("get Payment");
-        Button yearReport = new Button("get year report");
+        menuBar.add(getReportToTheAkt);
+        menuBar.add(forPayment);
+        menuBar.add(yearReport);
+        menuBar.add(yearProfitReport);
+        menuBar.add(intensive);
 
         JTextField daysOfReady = new JTextField(15);
+        daysOfReady.setText("enter days after ready");
 
+        frm.setLayout(new FlowLayout());
+        frm.add(table);
+        frm.add(menuBar);
+        frm.setJMenuBar(menuBar);
+        frm.add(getReportInProgress);
+        frm.add(daysOfReady);
+        frm.setVisible(true);
 
+        daysOfReady.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    jlabText.setText(daysOfReady.getText());
+                    int days = (Integer.parseInt(jlabText.getText()));
+                    GetReportController.daysBeforeTodayForPayment = days;
+                    initialTask();
+                }catch (NumberFormatException exception){
+                    System.out.println("enter days after ready [int] ");
+                }
+
+            }
+        });
+
+        intensive.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                StringSelection selection = new StringSelection(intensiveReport);
+                clipboard.setContents(selection, null);
+                JOptionPane.showMessageDialog(frm, intensiveReport);
+            }
+        });
+
+        yearProfitReport.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                StringSelection selection = new StringSelection(yearReportProfitText);
+                clipboard.setContents(selection, null);
+                JOptionPane.showMessageDialog(frm, yearReportProfitText);
+            }
+        });
         yearReport.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -111,21 +161,9 @@ public class JTableView {
             }
         });
 
-        // todo interface and reports
-        frm.add(jsp, BorderLayout.CENTER); // Add the JScrollPane to the center
-        frm.add(getReportInProgress, BorderLayout.SOUTH); // Add the Button to the south
-        frm.add(getReportToTheAkt, BorderLayout.EAST); // Add the Button to the south
-        frm.add(forPayment, BorderLayout.WEST); // Add the Button to the south
-        frm.add(yearReport, BorderLayout.NORTH); // Add the Button to the south
-
-        // Display the frame.
-        frm.setVisible(true);
     }
 
     public static void main(String[] args) {
-        // Create the frame on the event dispatching thread.
-
         SwingUtilities.invokeLater(() -> new JTableView());
     }
-
 }
