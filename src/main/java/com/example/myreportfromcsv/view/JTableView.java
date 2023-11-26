@@ -1,14 +1,8 @@
 package com.example.myreportfromcsv.view;
 
-import com.example.myreportfromcsv.MyReportFromCsvApplication;
-import com.example.myreportfromcsv.controller.OrderController;
-import com.example.myreportfromcsv.repasitory.OrderRepository;
-import com.example.myreportfromcsv.service.OrderService;
 import com.example.myreportfromcsv.service.ReportService;
 import com.example.myreportfromcsv.controller.ReportController;
 import com.example.myreportfromcsv.model.Order;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.swing.*;
 import java.awt.*;
